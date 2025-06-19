@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Poetry (hh_api)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (hh_api)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (django_course)" project-jdk-type="Python SDK" />
 </project>
