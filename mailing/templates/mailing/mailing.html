@@ -1,0 +1,32 @@
+{% extends 'mailing/base.html' %}
+{% block title %}Информация о рассылке{% endblock %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Информация о рассылке сообщения {{ object.message.email_subject }}</h1>
+</div>
+<div class="col-lg-12 col-md-6 col-sm-12">
+    <div class="card">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Отправка начата: {{object.first_sending}}</li>
+            <li class="list-group-item">Отправка окончена: {{object.last_sending}}</li>
+            <li class="list-group-item">Статус: {{object.status}}</li>
+            <li class="list-group-item">Тема рассылки: {{object.message.email_subject}}</li>
+            <li class="list-group-item">Список получателей: {{object.recipient}}</li>
+            {% if object.owner == user or "sending_messages.can_block_mailing" in perms %}
+            <li class="list-group-item">Активна: {{object.is_active|yesno:"Да,Нет"}}</li>
+            <li class="list-group-item">Менеджер: </li>
+            {% endif %}
+        </ul>
+        {% if product.owner == user %}
+        <a href="{% url 'mailing:mailing_update' object.pk %}" class="btn btn-outline-primary m-2 text-center" role="button" style="max-width: 255px;">
+            Редактировать</a>
+        <a href="{% url 'mailing:mailing_delete' object.pk %}" class="btn btn-outline-danger m-2 text-center" role="button" style="max-width: 255px;">
+            Удалить</a>
+        {% endif %}
+    </div>
+</div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:mailings' %}" role="button" style="max-width: 215px;">Назад</a>
+</div>
+{% endblock %}

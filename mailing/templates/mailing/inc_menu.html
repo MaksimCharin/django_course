@@ -2,14 +2,12 @@
 <nav class="ms-5">
     <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipients' %}">Получатели</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:messages' %}">Сообщения</a>
-    <a class="p-2 btn btn-outline-primary" href="#">Заглушка 3</a>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailings' %}">Рассылки</a>
     {% if user.is_authenticated %}
     <form method="post" action="">
         {% csrf_token %}
         <button type="submit" class="p-2 btn btn-outline-primary">Выйти</button>
     </form>
-
-
     {% else %}
     <a class="p-2 btn btn-outline-primary" href="#">Войти</a>
     <a class="p-2 btn btn-outline-primary" href="#">Регистрация</a>
