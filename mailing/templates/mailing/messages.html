@@ -1,0 +1,36 @@
+{% extends 'mailing/base.html' %}
+{% block title %}Список сообщений{% endblock %}
+
+{% block content %}
+<p class="lead pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">Список Ваших сообщений<br>
+    </p>
+<div class="row">
+    {% for message in messages %}
+    <div class="col-6">
+        <div class="card text-bg-light">
+            <h4 class="card-header p-3 text-center">{{message.email_subject}}</h4>
+              <div class="card-body">
+                  <div class="mb-3">
+                    <p class="card-text text-center">
+                      {{message.email_body|truncatechars:50}}
+                    </p>
+                  </div>
+                  <div class="row">
+                      <div class="col-9">
+                          <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:message' message.pk %}" role="button">Подробнее</a>
+                            <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:message_update' message.pk %}" role="button">Редактировать</a>
+                            <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:message_delete' message.pk %}" role="button">Удалить</a>
+                      </div>
+                  </div>
+              </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+{% if perms.users.add_message or user.is_superuser  %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:message_create' %}" role="button">Добавить сообщение</a>
+</div>
+{% endif %}
+
+{% endblock %}

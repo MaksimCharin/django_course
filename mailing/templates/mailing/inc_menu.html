@@ -1,7 +1,7 @@
 <h5 class="my-0 mr-md-auto font-weight-normal">Django-project</h5>
 <nav class="ms-5">
-    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipients' %}">Список получателей</a>
-    <a class="p-2 btn btn-outline-primary" href="#">Заглушка 2</a>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipients' %}">Получатели</a>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:messages' %}">Сообщения</a>
     <a class="p-2 btn btn-outline-primary" href="#">Заглушка 3</a>
     {% if user.is_authenticated %}
     <form method="post" action="">

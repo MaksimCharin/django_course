@@ -1,5 +1,5 @@
 from django import forms
-from .models import MailingRecipient
+from .models import MailingRecipient, Message
 
 
 class MailingRecipientForm(forms.ModelForm):
@@ -16,3 +16,15 @@ class MailingRecipientForm(forms.ModelForm):
                                                     'rows': "4", 'placeholder':
                                                         'Введите комментарий (описание) по данному клиенту'})
 
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['email_subject', 'email_body']
+
+    def __init__(self, *args, **kwargs):
+        super(MessageForm, self).__init__(*args, **kwargs)
+        self.fields['email_subject'].widget.attrs.update({'class': 'form-control',
+                                                            'placeholder': 'Введите тему сообщения '})
+        self.fields['email_body'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
+                                                         'rows': "4", 'placeholder': 'Введите текст сообщения'})
