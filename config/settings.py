@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'mailing',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -161,3 +162,9 @@ LOGGING = {
         },
     },
 }
+
+AUTH_USER_MODEL = 'users.User'
+
+LOGIN_REDIRECT_URL = 'mailing:mailings'
+LOGOUT_REDIRECT_URL = 'mailings:home'
+LOGIN_URL = 'users:login'

@@ -1,4 +1,3 @@
-# mailing/urls.py
 from django.urls import path
 from mailing.apps import MailingConfig
 from .views import (

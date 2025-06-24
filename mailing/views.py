@@ -223,23 +223,27 @@ class HomePageView(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
 
-        if self.request.user.is_superuser:
-            all_mailings = Mailing.objects.all()
-            unique_recipients_count = MailingRecipient.objects.count()
-        else:
-            all_mailings = Mailing.objects.filter(owner=self.request.user)
+        count_mailing = 0
+        active_mailings_count = 0
+        unique_recipients_count = 0
 
-            unique_recipients_count = MailingRecipient.objects.filter(mailing__owner=self.request.user).distinct().count()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_superuser:
+                all_mailings = Mailing.objects.all()
+                unique_recipients_count = MailingRecipient.objects.count()
+            else:
+                all_mailings = Mailing.objects.filter(owner=self.request.user)
+                unique_recipients_count = MailingRecipient.objects.filter(mailing__owner=self.request.user).distinct().count()
+
+            count_mailing = all_mailings.count()
+            active_mailings_count = all_mailings.filter(is_active=True).count()
 
 
-        context_data["count_mailing"] = all_mailings.count()
-
-        context_data["active_mailings_count"] = all_mailings.filter(is_active=True).count()
-
+        context_data["count_mailing"] = count_mailing
+        context_data["active_mailings_count"] = active_mailings_count
         context_data["unique_recipients_count"] = unique_recipients_count
 
         return context_data
-
 
 def toggle_mailing_activity(request, pk):
     mailing = get_object_or_404(Mailing, pk=pk)
