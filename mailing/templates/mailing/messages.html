@@ -27,10 +27,7 @@
     </div>
     {% endfor %}
     </div>
-{% if perms.users.add_message or user.is_superuser  %}
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
     <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:message_create' %}" role="button">Добавить сообщение</a>
 </div>
-{% endif %}
-
 {% endblock %}

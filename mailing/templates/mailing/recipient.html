@@ -10,21 +10,15 @@
         <h2 class="card-header p-3 text-center">{{ object.full_name }}</h2>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">Описание: {{object.comment}}</li>
-            {% if object.owner == user %}
             <li class="list-group-item">Действующий: {{object.is_active|yesno:"Да,Нет"}}</li>
             <li class="list-group-item">Менеджер: {{object.owner.last_name}} {{object.owner.first_name}}</li>
-            {% endif %}
         </ul>
-        {% if object.owner == user %}
         <a href="{% url 'mailing:recipient_update' object.pk %}"
            class="btn btn-outline-primary m-2 text-center" role="button" style="max-width: 255px;">
             Редактировать</a>
-        {% if user.is_superuser or object.owner == user %}
         <a href="{% url 'mailing:recipient_delete' object.pk %}"
            class="btn btn-outline-danger m-2 text-center" role="button" style="max-width: 255px;">
             Удалить</a>
-        {% endif %}
-        {% endif %}
     </div>
 </div>
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">

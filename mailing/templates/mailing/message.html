@@ -10,16 +10,12 @@
         <h2 class="card-header p-3 text-center">{{ object.email_subject }}</h2>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">Текст сообщения: {{object.email_body}}</li>
-            {% if object.owner == user %}
             <li class="list-group-item">Менеджер: {{object.owner.last_name}} {{object.owner.first_name}}</li>
-            {% endif %}
         </ul>
-        {% if user.is_superuser or object.owner == user %}
-        <a href="#" class="btn btn-outline-primary m-2 text-center" role="button" style="max-width: 255px;">
+        <a href="{% url 'mailing:message_update' message.pk %}" class="btn btn-outline-primary m-2 text-center" role="button" style="max-width: 255px;">
             Редактировать</a>
-        <a href="#" class="btn btn-outline-danger m-2 text-center" role="button" style="max-width: 255px;">
+        <a href="{% url 'mailing:message_delete' message.pk %}" class="btn btn-outline-danger m-2 text-center" role="button" style="max-width: 255px;">
             Удалить</a>
-        {% endif %}
     </div>
 </div>
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">

@@ -27,9 +27,7 @@
     </div>
     {% endfor %}
     </div>
-{% if user.is_superuser or perms.sending_messages.add_mailingrecipient %}
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
     <a class="btn btn-outline-primary mt-4" href="{% url 'mailing:recipient_create' %}" role="button">Добавить получателя</a>
 </div>
-{% endif %}
 {% endblock %}

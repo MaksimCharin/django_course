@@ -25,20 +25,22 @@ class MessageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MessageForm, self).__init__(*args, **kwargs)
         self.fields['email_subject'].widget.attrs.update({'class': 'form-control',
-                                                            'placeholder': 'Введите тему сообщения '})
+                                                          'placeholder': 'Введите тему сообщения '})
         self.fields['email_body'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
-                                                         'rows': "4", 'placeholder': 'Введите текст сообщения'})
-
+                                                       'rows': "4", 'placeholder': 'Введите текст сообщения'})
 
 
 class MailingForm(forms.ModelForm):
     class Meta:
         model = Mailing
-        fields = ['message', 'recipients']
+        fields = ['message', 'recipients', 'start_time', 'end_time']
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'recipients': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
+        }
 
     def __init__(self, *args, **kwargs):
         super(MailingForm, self).__init__(*args, **kwargs)
         self.fields['message'].widget.attrs.update({'class': 'form-select form-select-sm',
                                                     'aria-label': 'Small select example'})
-        self.fields['recipients'].widget.attrs.update({'class': 'form-select form-select-sm',
-                                                      'aria-label': 'Small select example'})

@@ -13,12 +13,56 @@
             <form method="post" action="" class="form-floating" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
+
+                <div class="mb-3">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.message.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.recipients.label }}</label>
+                    <div>
+                        {% for checkbox in form.recipients %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.recipients.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.recipients.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
                 {% for field in form %}
-                <p>
-                    {{field.label_tag}}
-                    {{field}}
-                <div class="list-group-item text-danger mb-3 text-center">{{field.errors.0}}</div>
+                    {% if field.name != 'message' and field.name != 'recipients' %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 {% endfor %}
+
                 <button type="submit" class="btn btn-lg btn-block btn-outline-primary">
                     {% if object %}
                     Сохранить

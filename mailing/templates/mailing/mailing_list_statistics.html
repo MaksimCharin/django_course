@@ -1,0 +1,71 @@
+{% extends 'mailing/base.html' %}
+{% block title %}Статистика по рассылкам{% endblock %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <div class="row justify-content-center">
+            <div class="col-4"></div>
+            <div class="col-4">
+                <h2>Статистика по рассылкам</h2>
+            </div>
+            <div class="col-4"></div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-success table-striped">
+                <thead>
+                <tr>
+                    <th>Сообщений доставлено</th>
+                    <th>Сообщений не доставлено</th>
+                    <th>Количество отправленных рассылок</th>
+                    <th>Всего попыток</th>
+                </tr>
+                <tr>
+                    <td>{{ successful }}</td>
+                    <td>{{ failed }}</td>
+                    <td>{{ mailings_successful }}</td>
+                    <td>{{ mailing_attempts_count }}</td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-success table-striped">
+                <thead>
+                <tr>
+                    <th>Тема сообщения</th>
+                    <th>Описание рассылки</th>
+                    <th>Дата попытки</th>
+                    <th>Статус</th>
+                    <th>Ответ сервера</th>
+                    <th>Создал рассылку</th>
+                </tr>
+                </thead>
+                <tbody> {# Важно: добавьте <tbody> #}
+                {% for object in object_list %}
+                <tr>
+                    <td>{{ object.mailing.message.email_subject }}</td>
+                    <td>{{ object.mailing.message.email_body|truncatechars:30 }}</td>
+                    <td>{{ object.create_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ object.get_status_display }}</td>
+                    <td>{{ object.server_response}}</td>
+                    <td>
+                        {% if object.mailing.owner %}
+                            {{ object.mailing.owner.email }}
+                        {% else %}
+                            Неизвестно
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

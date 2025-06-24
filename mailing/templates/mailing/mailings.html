@@ -7,9 +7,7 @@
         <div class="row justify-content-center">
             <div class="col-4 mb-2">
                 <h2>Рассылки</h2>
-                {% if perms.sending_messages.add_mailing %}
-                    <a class="btn btn-success mt-3" href="{% url 'mailing:mailing_create' %}">Создать рассылку</a>
-                {% endif %}
+                <a class="btn btn-success mt-3" href="{% url 'mailing:mailing_create' %}">Создать рассылку</a>
             </div>
         </div>
     </div>
@@ -24,50 +22,49 @@
                     <th>Статус</th>
                     <th>Сообщение</th>
                     <th>Активность</th>
-                    {% if user.is_superuser or sending_messages.can_block_mailing in perms %}
                     <th>Создал</th>
-                    {% endif %}
                     <th>Действия</th>
                 </tr>
                 </thead>
-
+                <tbody>
                 {% for mailing in mailings %}
                 <tr>
                     <td>{{ mailing.message.email_subject }}</td>
-                    <td>{{ mailing.first_sending|date:"d M Y" }}</td>
-                    <td>{{ mailing.last_sending|date:"d M Y" }}</td>
-                    <td>{{ mailing.status }}</td>
+                    <td>{{ mailing.start_time|date:"d M Y" }}</td>
+                    <td>{{ mailing.end_time|date:"d M Y" }}</td>
+                    <td>{{ mailing.get_status_display }}</td>
                     <td>{{ mailing.message.email_body|truncatechars:30 }}</td>
                     <td>
-                        {% if user.is_superuser or sending_messages.can_block_mailing in perms %}
-                        {% if object.is_active %}
-                                <a type="button" class="btn btn-danger btn-sm"
-                                   href="#">Заблокировать</a>
-                            {% else %}
-                                <a type="button" class="btn btn-success btn-sm"
-                                   href="#">Разблокировать</a>
-                            {% endif %}
+                        {% if mailing.is_active %}
+                            <span class="badge bg-success">Активна</span>
+                            <a type="button" class="btn btn-danger btn-sm"
+                               href="{% url 'mailing:toggle_mailing_activity' mailing.pk %}">Заблокировать</a>
                         {% else %}
-                        {{object.is_active|yesno:"Активна, Не активна"}}
+                            <span class="badge bg-secondary">Не активна</span>
+                            <a type="button" class="btn btn-success btn-sm"
+                               href="{% url 'mailing:toggle_mailing_activity' mailing.pk %}">Разблокировать</a>
                         {% endif %}
                     </td>
-                     {% if user.is_superuser or mailing.view_mailing in perms %}
-                    <td>{{ message.status }}</td>
-                    {% endif %}
+                    <td>{{ mailing.owner.username|default:"N/A" }}</td>
+
                     <td>
-                        <a class="btn btn-primary btn-sm" href="{% url 'mailing:mailing' mailing.pk%}">Посмотреть </a>
+                        <a class="btn btn-primary btn-sm" href="{% url 'mailing:mailing' mailing.pk %}">Посмотреть </a>
                         <a class="btn btn-primary btn-sm" href="{% url 'mailing:mailing_update' mailing.pk %}">Редактировать</a>
-                        <a class="btn btn-danger btn-sm" href="{% url 'mailing:mailing_delete' mailing.pk %}">Удалить</a>
-                        {% if user.is_superuser or object.owner == user %}
-                        <a class="btn btn-secondary btn-sm mt-1" href="#">Запустить</a>
+                        <a class="btn btn-danger btn-sm"
+                           href="{% url 'mailing:mailing_delete' mailing.pk %}">Удалить</a>
+                        {# НОВОЕ УСЛОВИЕ ДЛЯ КНОПКИ "ЗАПУСТИТЬ" #}
+                        {% if mailing.is_active %}
+                            <a class="btn btn-secondary btn-sm mt-1" href="{% url 'mailing:run_mailing' mailing.pk %}">Запустить</a>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm mt-1" disabled>Запустить</button> {# Отключенная кнопка #}
                         {% endif %}
                     </td>
 
                 </tr>
-                {% endfor%}
+                {% endfor %}
+                </tbody>
             </table>
-
-        </div><!-- /.row -->
-    </div><!-- /.container -->
+        </div>
+    </div>
 </div>
-{% endblock %}}
+{% endblock %}
