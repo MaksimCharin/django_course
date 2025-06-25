@@ -46,7 +46,7 @@
                     <th>Создал рассылку</th>
                 </tr>
                 </thead>
-                <tbody> {# Важно: добавьте <tbody> #}
+                <tbody>
                 {% for object in object_list %}
                 <tr>
                     <td>{{ object.mailing.message.email_subject }}</td>
@@ -56,9 +56,9 @@
                     <td>{{ object.server_response}}</td>
                     <td>
                         {% if object.mailing.owner %}
-                            {{ object.mailing.owner.email }}
+                        {{ object.mailing.owner.email }}
                         {% else %}
-                            Неизвестно
+                        Неизвестно
                         {% endif %}
                     </td>
                 </tr>

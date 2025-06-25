@@ -17,9 +17,11 @@
                   </div>
                   <div class="row">
                       <div class="col-9">
-                          <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipient' recipient.pk %}" role="button">Подробнее</a>
+                          <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipient_detail' recipient.pk %}" role="button">Подробнее</a>
+                          {% if recipient.owner == user or user.is_superuser %}
                           <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipient_update' recipient.pk %}" role="button">Редактировать</a>
                           <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipient_delete' recipient.pk %}" role="button">Удалить</a>
+                          {% endif %}
                       </div>
                   </div>
               </div>
