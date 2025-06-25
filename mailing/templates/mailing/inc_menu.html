@@ -1,23 +1,57 @@
-<h5 class="my-0 mr-md-auto font-weight-normal">Django-project</h5>
-<nav class="ms-5">
-    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:home' %}">Главная</a>
+<header class="p-3 bg-light border-bottom shadow-sm">
+    <div class="container-fluid">
+        <nav class="navbar navbar-light bg-light p-0 d-flex justify-content-between align-items-center">
 
-    {% if user.is_authenticated %}
-        <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:recipients' %}">Клиенты</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:messages' %}">Сообщения</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailings' %}">Рассылки</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_attempts' %}">Статистика</a>
+            <a class="navbar-brand" href="{% url 'mailing:home' %}">
+                <span class="fs-5 fw-bold">Django-project</span>
+            </a>
 
-        {% if is_manager %}
-            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:user_list_manager' %}">Пользователи</a>
-        {% endif %}
+            <ul class="navbar-nav d-flex flex-row">
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:home' %}">Главная</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:recipients' %}">Клиенты</a>
+                </li>
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:messages' %}">Сообщения</a>
+                </li>
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:mailings' %}">Рассылки</a>
+                </li>
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:mailing_attempts' %}">Статистика</a>
+                </li>
+                {% if is_manager %}
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:user_list_manager' %}">Пользователи</a>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
 
-        <form method="post" action="{% url 'users:logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="p-2 btn btn-outline-primary">Выйти</button>
-        </form>
-    {% else %}
-        <a class="p-2 btn btn-outline-primary" href="{% url 'users:login' %}">Войти</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'users:register' %}">Регистрация</a>
-    {% endif %}
-</nav>
+
+            <ul class="navbar-nav d-flex flex-row">
+                {% if user.is_authenticated %}
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'users:profile' %}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'users:logout' %}" class="d-flex">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">Выйти</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-primary" href="{% url 'users:login' %}">Войти</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-primary" href="{% url 'users:register' %}">Регистрация</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>

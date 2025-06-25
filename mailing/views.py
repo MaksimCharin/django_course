@@ -1,17 +1,26 @@
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin, UserPassesTestMixin
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse
-from django.contrib import messages
-from .forms import MailingRecipientForm, MessageForm, MailingForm
-from .models import MailingRecipient, Message, Mailing, MailingAttempt
-from django.views.generic import ListView, DetailView, TemplateView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from config.settings import LOGIN_URL, EMAIL_HOST_USER
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.utils import timezone
 import logging
+
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import (
+    AccessMixin,
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+
+from config.settings import EMAIL_HOST_USER, LOGIN_URL
+
+from .forms import MailingForm, MailingRecipientForm, MessageForm
+from .models import Mailing, MailingAttempt, MailingRecipient, Message
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -21,9 +30,12 @@ class ManagerRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
-        if not request.user.is_superuser and not request.user.groups.filter(name='Менеджер').exists():
-            messages.error(request, 'У вас нет прав для доступа к этой странице.')
-            return redirect('mailing:home')
+        if (
+            not request.user.is_superuser
+            and not request.user.groups.filter(name="Менеджер").exists()
+        ):
+            messages.error(request, "У вас нет прав для доступа к этой странице.")
+            return redirect("mailing:home")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -31,31 +43,43 @@ def manager_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect(LOGIN_URL)
-        if not request.user.is_superuser and not request.user.groups.filter(name='Менеджер').exists():
-            messages.error(request, 'У вас нет прав для доступа к этой странице.')
-            return redirect('mailing:home')
+        if (
+            not request.user.is_superuser
+            and not request.user.groups.filter(name="Менеджер").exists()
+        ):
+            messages.error(request, "У вас нет прав для доступа к этой странице.")
+            return redirect("mailing:home")
         return view_func(request, *args, **kwargs)
+
     return _wrapped_view
 
 
 # Контроллеры для управления получателями рассылки
+@method_decorator(cache_page(60), name="dispatch")
 class MailingRecipientListView(LoginRequiredMixin, ListView):
     model = MailingRecipient
-    template_name = 'mailing/recipients_list.html'
-    context_object_name = 'recipients'
+    template_name = "mailing/recipients_list.html"
+    context_object_name = "recipients"
 
     def get_queryset(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return MailingRecipient.objects.all()
         return MailingRecipient.objects.filter(owner=self.request.user)
 
 
+@method_decorator(cache_page(60), name="dispatch")
 class MailingRecipientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = MailingRecipient
-    template_name = 'mailing/recipient.html'
+    template_name = "mailing/recipient.html"
 
     def test_func(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return True
         obj = self.get_object()
         return obj.owner == self.request.user
@@ -64,54 +88,77 @@ class MailingRecipientDetailView(LoginRequiredMixin, UserPassesTestMixin, Detail
 class MailingRecipientCreateView(LoginRequiredMixin, CreateView):
     model = MailingRecipient
     form_class = MailingRecipientForm
-    template_name = 'mailing/recipient_form.html'
-    success_url = reverse_lazy('mailing:recipients')
+    template_name = "mailing/recipient_form.html"
+    success_url = reverse_lazy("mailing:recipients")
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:recipients"))
+        return response
 
 
 class MailingRecipientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingRecipient
     form_class = MailingRecipientForm
-    template_name = 'mailing/recipient_form.html'
-    success_url = reverse_lazy('mailing:recipients')
+    template_name = "mailing/recipient_form.html"
+    success_url = reverse_lazy("mailing:recipients")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:recipients"))
+        cache.delete(reverse("mailing:recipient_detail", kwargs={"pk": self.object.pk}))
+        return response
 
 
 class MailingRecipientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = MailingRecipient
-    context_object_name = 'recipient'
-    template_name = 'mailing/recipient_confirm_delete.html'
-    success_url = reverse_lazy('mailing:recipients')
+    context_object_name = "recipient"
+    template_name = "mailing/recipient_confirm_delete.html"
+    success_url = reverse_lazy("mailing:recipients")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
 
+    def form_valid(self, form):
+        pk_to_delete = self.get_object().pk
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:recipients"))
+        cache.delete(reverse("mailing:recipient_detail", kwargs={"pk": pk_to_delete}))
+        return response
+
 
 # Контроллеры для управления сообщениями
+@method_decorator(cache_page(60), name="dispatch")
 class MessageListView(LoginRequiredMixin, ListView):
     model = Message
-    template_name = 'mailing/messages.html'
-    context_object_name = 'messages'
+    template_name = "mailing/messages.html"
+    context_object_name = "messages"
 
     def get_queryset(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return Message.objects.all()
         return Message.objects.filter(owner=self.request.user)
 
 
+@method_decorator(cache_page(60), name="dispatch")
 class MessageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Message
-    template_name = 'mailing/message.html'
+    template_name = "mailing/message.html"
 
     def test_func(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return True
         obj = self.get_object()
         return obj.owner == self.request.user
@@ -120,54 +167,77 @@ class MessageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
-    template_name = 'mailing/message_form.html'
-    success_url = reverse_lazy('mailing:messages')
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:messages")
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:messages"))
+        return response
 
 
 class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Message
     form_class = MessageForm
-    template_name = 'mailing/message_form.html'
-    success_url = reverse_lazy('mailing:messages')
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:messages")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:messages"))
+        cache.delete(reverse("mailing:message_detail", kwargs={"pk": self.object.pk}))
+        return response
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Message
-    context_object_name = 'message'
-    template_name = 'mailing/message_confirm_delete.html'
-    success_url = reverse_lazy('mailing:messages')
+    context_object_name = "message"
+    template_name = "mailing/message_confirm_delete.html"
+    success_url = reverse_lazy("mailing:messages")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
 
+    def form_valid(self, form):
+        pk_to_delete = self.get_object().pk
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:messages"))
+        cache.delete(reverse("mailing:message_detail", kwargs={"pk": pk_to_delete}))
+        return response
+
 
 # Контроллеры для управления рассылкой
+@method_decorator(cache_page(60), name="dispatch")
 class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
-    template_name = 'mailing/mailings.html'
-    context_object_name = 'mailings'
+    template_name = "mailing/mailings.html"
+    context_object_name = "mailings"
 
     def get_queryset(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return Mailing.objects.all()
         return Mailing.objects.filter(owner=self.request.user)
 
 
+@method_decorator(cache_page(60), name="dispatch")
 class MailingDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Mailing
-    template_name = 'mailing/mailing.html'
+    template_name = "mailing/mailing.html"
 
     def test_func(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
             return True
         obj = self.get_object()
         return obj.owner == self.request.user
@@ -176,95 +246,175 @@ class MailingDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
-    template_name = 'mailing/mailing_form.html'
-    success_url = reverse_lazy('mailing:mailings')
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailings")
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
         form.instance.status = Mailing.STATUS_CREATED
         form.instance.is_active = True
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:mailings"))
+        return response
 
 
 class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
-    template_name = 'mailing/mailing_form.html'
-    success_url = reverse_lazy('mailing:mailings')
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailings")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:mailings"))
+        cache.delete(reverse("mailing:mailing_detail", kwargs={"pk": self.object.pk}))
+        return response
 
 
 class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Mailing
-    context_object_name = 'mailing'
-    template_name = 'mailing/mailing_confirm_delete.html'
-    success_url = reverse_lazy('mailing:mailings')
+    context_object_name = "mailing"
+    template_name = "mailing/mailing_confirm_delete.html"
+    success_url = reverse_lazy("mailing:mailings")
 
     def test_func(self):
         obj = self.get_object()
         return obj.owner == self.request.user or self.request.user.is_superuser
 
+    def form_valid(self, form):
+        pk_to_delete = self.get_object().pk
+        response = super().form_valid(form)
+        cache.delete(reverse("mailing:mailings"))
+        cache.delete(reverse("mailing:mailing_detail", kwargs={"pk": pk_to_delete}))
+        return response
+
 
 # Контроллеры для управления попыткой рассылки
+@method_decorator(cache_page(60), name="dispatch")
 class MailingAttemptsListView(LoginRequiredMixin, ListView):
     model = MailingAttempt
-    template_name = 'mailing/mailing_list_statistics.html'
-    context_object_name = 'object_list'
+    template_name = "mailing/mailing_list_statistics.html"
+    context_object_name = "object_list"
 
     def get_queryset(self):
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
-            return MailingAttempt.objects.all().select_related('mailing__message')
-
+        if (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        ):
+            return MailingAttempt.objects.all().select_related("mailing__message")
         user_mailings = Mailing.objects.filter(owner=self.request.user)
-        return MailingAttempt.objects.filter(mailing__in=user_mailings).select_related('mailing__message')
+        return MailingAttempt.objects.filter(mailing__in=user_mailings).select_related(
+            "mailing__message"
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
-            filtered_attempts = MailingAttempt.objects.all()
-            context['is_manager_view'] = True
+        user_id = self.request.user.id
+        is_manager_or_superuser = (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        )
+        cache_key_prefix = (
+            f"stats_user_{user_id}"
+            if not is_manager_or_superuser
+            else "stats_manager_all"
+        )
+
+        cached_stats = cache.get(cache_key_prefix)
+
+        if cached_stats is None:
+            if is_manager_or_superuser:
+                filtered_attempts = MailingAttempt.objects.all()
+                context["is_manager_view"] = True
+            else:
+                user_mailings = Mailing.objects.filter(owner=self.request.user)
+                filtered_attempts = MailingAttempt.objects.filter(
+                    mailing__in=user_mailings
+                )
+                context["is_manager_view"] = False
+
+            context["successful"] = filtered_attempts.filter(
+                status=MailingAttempt.STATUS_SUCCESSFULLY
+            ).count()
+            context["failed"] = filtered_attempts.filter(
+                status=MailingAttempt.STATUS_NOT_SUCCESSFULLY
+            ).count()
+            context["mailings_with_successful_attempts"] = (
+                filtered_attempts.filter(status=MailingAttempt.STATUS_SUCCESSFULLY)
+                .values("mailing")
+                .distinct()
+                .count()
+            )
+            context["total_mailing_attempts"] = filtered_attempts.count()
+
+            stats_to_cache = {
+                "successful": context["successful"],
+                "failed": context["failed"],
+                "mailings_with_successful_attempts": context[
+                    "mailings_with_successful_attempts"
+                ],
+                "total_mailing_attempts": context["total_mailing_attempts"],
+                "is_manager_view": context["is_manager_view"],
+            }
+            cache.set(cache_key_prefix, stats_to_cache, 60)
         else:
-            user_mailings = Mailing.objects.filter(owner=self.request.user)
-            filtered_attempts = MailingAttempt.objects.filter(mailing__in=user_mailings)
-            context['is_manager_view'] = False
-
-        context["successful"] = filtered_attempts.filter(status=MailingAttempt.STATUS_SUCCESSFULLY).count()
-        context["failed"] = filtered_attempts.filter(status=MailingAttempt.STATUS_NOT_SUCCESSFULLY).count()
-
-        context["mailings_with_successful_attempts"] = filtered_attempts.filter(status=MailingAttempt.STATUS_SUCCESSFULLY).values('mailing').distinct().count()
-        context["total_mailing_attempts"] = filtered_attempts.count()
+            context.update(cached_stats)
 
         return context
 
 
+@method_decorator(cache_page(60), name="dispatch")
 class HomePageView(TemplateView):
     template_name = "mailing/home.html"
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
 
-        count_mailing = 0
-        active_mailings_count = 0
-        unique_recipients_count = 0
+        user_id = self.request.user.id if self.request.user.is_authenticated else "anon"
+        is_manager_or_superuser = self.request.user.is_authenticated and (
+            self.request.user.groups.filter(name="Менеджер").exists()
+            or self.request.user.is_superuser
+        )
+        cache_key = (
+            f"home_stats_user_{user_id}"
+            if self.request.user.is_authenticated
+            else "home_stats_anon"
+        )
 
-        if self.request.user.is_authenticated:
-            if self.request.user.groups.filter(name='Менеджер').exists() or self.request.user.is_superuser:
-                all_mailings = Mailing.objects.all()
-                unique_recipients_count = MailingRecipient.objects.count()
-            else:
-                all_mailings = Mailing.objects.filter(owner=self.request.user)
-                unique_recipients_count = MailingRecipient.objects.filter(owner=self.request.user).count()
+        cached_stats = cache.get(cache_key)
 
-            count_mailing = all_mailings.count()
-            active_mailings_count = all_mailings.filter(is_active=True).count()
+        if cached_stats is None:
+            count_mailing = 0
+            active_mailings_count = 0
+            unique_recipients_count = 0
 
-        context_data["count_mailing"] = count_mailing
-        context_data["active_mailings_count"] = active_mailings_count
-        context_data["unique_recipients_count"] = unique_recipients_count
+            if self.request.user.is_authenticated:
+                if is_manager_or_superuser:
+                    all_mailings = Mailing.objects.all()
+                    unique_recipients_count = MailingRecipient.objects.count()
+                else:
+                    all_mailings = Mailing.objects.filter(owner=self.request.user)
+                    unique_recipients_count = MailingRecipient.objects.filter(
+                        owner=self.request.user
+                    ).count()
+
+                count_mailing = all_mailings.count()
+                active_mailings_count = all_mailings.filter(is_active=True).count()
+
+            stats_to_cache = {
+                "count_mailing": count_mailing,
+                "active_mailings_count": active_mailings_count,
+                "unique_recipients_count": unique_recipients_count,
+            }
+            cache.set(cache_key, stats_to_cache, 60)
+            context_data.update(stats_to_cache)
+        else:
+            context_data.update(cached_stats)
 
         return context_data
 
@@ -273,53 +423,99 @@ class HomePageView(TemplateView):
 def toggle_mailing_activity(request, pk):
     mailing = get_object_or_404(Mailing, pk=pk)
 
-    if not request.user.groups.filter(name='Менеджер').exists() and not request.user.is_superuser:
+    if (
+        not request.user.groups.filter(name="Менеджер").exists()
+        and not request.user.is_superuser
+    ):
         if mailing.owner != request.user:
-            messages.error(request, 'У вас нет прав для изменения активности этой рассылки.')
+            messages.error(
+                request, "У вас нет прав для изменения активности этой рассылки."
+            )
             logger.warning(
-                f"Пользователь {request.user.username} (ID: {request.user.id}) попытался изменить активность чужой рассылки (ID: {pk})")
-            return redirect(reverse('mailing:mailings'))
-
+                f"Пользователь {request.user.username} (ID: {request.user.id}) "
+                f"попытался изменить активность чужой рассылки (ID: {pk})"
+            )
+            return redirect(reverse("mailing:mailings"))
 
     mailing.is_active = not mailing.is_active
     mailing.save()
     status_text = "отключена" if not mailing.is_active else "включена"
-    messages.success(request, f'Рассылка "{mailing.message.email_subject}" успешно {status_text}.')
-    logger.info(f"Менеджер {request.user.username} {status_text} рассылку ID: {mailing.id}.")
-    return redirect(reverse('mailing:mailings'))
+    messages.success(
+        request, f'Рассылка "{mailing.message.email_subject}" успешно {status_text}.'
+    )
+    logger.info(
+        f"Менеджер {request.user.username} {status_text} рассылку ID: {mailing.id}."
+    )
+
+    cache.delete(reverse("mailing:mailings"))
+    cache.delete(reverse("mailing:mailing_detail", kwargs={"pk": mailing.pk}))
+    cache.delete("home_stats_manager_all")
+    if mailing.owner.is_authenticated:
+        cache.delete(f"home_stats_user_{mailing.owner.id}")
+    cache.delete("stats_manager_all")
+    if mailing.owner.is_authenticated:
+        cache.delete(f"stats_user_{mailing.owner.id}")
+
+    return redirect(reverse("mailing:mailings"))
+
 
 @manager_required
 def run_mailing(request, pk):
     mailing = get_object_or_404(Mailing, pk=pk)
 
-    if not request.user.groups.filter(name='Менеджер').exists() and not request.user.is_superuser:
+    if (
+        not request.user.groups.filter(name="Менеджер").exists()
+        and not request.user.is_superuser
+    ):
         if mailing.owner != request.user:
-            messages.error(request, 'У вас нет прав для запуска этой рассылки.')
+            messages.error(request, "У вас нет прав для запуска этой рассылки.")
             logger.warning(
-                f"Пользователь {request.user.username} (ID: {request.user.id}) попытался запустить чужую рассылку (ID: {pk})")
+                f"Пользователь {request.user.username} (ID: {request.user.id}) "
+                f"попытался запустить чужую рассылку (ID: {pk})"
+            )
             return redirect("mailing:mailings")
 
     if not mailing.is_active:
-        messages.error(request, f'Рассылка "{mailing.message.email_subject}" заблокирована и не может быть запущена.')
+        messages.error(
+            request,
+            f'Рассылка "{mailing.message.email_subject}" заблокирована и не может быть запущена.',
+        )
         logger.warning(
-            f"Попытка запуска заблокированной рассылки ID: {pk} пользователем {request.user.username} (ID: {request.user.id})"
+            f"Попытка запуска заблокированной рассылки ID: {pk} пользователем {request.user.username} "
+            f"(ID: {request.user.id})"
         )
         return redirect("mailing:mailings")
 
     if mailing.status == Mailing.STATUS_LAUNCHED:
-        messages.info(request, f'Рассылка "{mailing.message.email_subject}" уже запущена.')
-        logger.info(f"Попытка запуска уже запущенной рассылки ID: {pk} пользователем {request.user.username}.")
+        messages.info(
+            request, f'Рассылка "{mailing.message.email_subject}" уже запущена.'
+        )
+        logger.info(
+            f"Попытка запуска уже запущенной рассылки ID: {pk} пользователем {request.user.username}."
+        )
         return redirect("mailing:mailings")
 
-    if mailing.status == Mailing.STATUS_CREATED or \
-       (mailing.status == Mailing.STATUS_COMPLETED and (mailing.end_time is None or mailing.end_time < timezone.now())):
+    if mailing.status == Mailing.STATUS_CREATED or (
+        mailing.status == Mailing.STATUS_COMPLETED
+        and (mailing.end_time is None or mailing.end_time < timezone.now())
+    ):
         mailing.status = Mailing.STATUS_LAUNCHED
-        mailing.save(update_fields=['status'])
-        messages.success(request, f'Рассылка "{mailing.message.email_subject}" запущена.')
-        logger.info(f"Рассылка ID: {mailing.pk} запущена вручную пользователем {request.user.username}.")
+        mailing.save(update_fields=["status"])
+        messages.success(
+            request, f'Рассылка "{mailing.message.email_subject}" запущена.'
+        )
+        logger.info(
+            f"Рассылка ID: {mailing.pk} запущена вручную пользователем {request.user.username}."
+        )
     else:
-        messages.warning(request, f'Рассылка "{mailing.message.email_subject}" не может быть запущена в текущем статусе ({mailing.get_status_display()}).')
-        logger.warning(f"Не удалось запустить рассылку ID: {pk} в статусе {mailing.status}.")
+        messages.warning(
+            request,
+            f'Рассылка "{mailing.message.email_subject}" не может быть запущена'
+            f' в текущем статусе ({mailing.get_status_display()}).',
+        )
+        logger.warning(
+            f"Не удалось запустить рассылку ID: {pk} в статусе {mailing.status}."
+        )
         return redirect("mailing:mailings")
 
     recipients_to_send = mailing.recipients.all()
@@ -327,12 +523,22 @@ def run_mailing(request, pk):
     failed_sends = 0
 
     if not recipients_to_send:
-        messages.info(request, f'Рассылка "{mailing.message.email_subject}" не имеет получателей. Отправка не произведена.')
+        messages.info(
+            request,
+            f'Рассылка "{mailing.message.email_subject}" не имеет получателей. Отправка не произведена.',
+        )
         mailing.status = Mailing.STATUS_COMPLETED
-        mailing.save(update_fields=['status'])
-        logger.info(f"Рассылка ID: {mailing.pk} не имеет получателей. Завершена немедленно.")
+        mailing.save(update_fields=["status"])
+        logger.info(
+            f"Рассылка ID: {mailing.pk} не имеет получателей. Завершена немедленно."
+        )
+        cache.delete("stats_manager_all")
+        if mailing.owner.is_authenticated:
+            cache.delete(f"stats_user_{mailing.owner.id}")
+        cache.delete("home_stats_manager_all")
+        if mailing.owner.is_authenticated:
+            cache.delete(f"home_stats_user_{mailing.owner.id}")
         return redirect("mailing:mailings")
-
 
     email_from = EMAIL_HOST_USER
 
@@ -350,11 +556,15 @@ def run_mailing(request, pk):
                 server_response="Сообщение успешно отправлено.",
                 mailing=mailing,
             )
-            logger.info(f"Письмо успешно отправлено для {recipient.email} (рассылка ID: {mailing.pk})")
+            logger.info(
+                f"Письмо успешно отправлено для {recipient.email} (рассылка ID: {mailing.pk})"
+            )
             successful_sends += 1
 
         except Exception as e:
-            error_message = f"Ошибка при отправке письма для {recipient.email}: {str(e)}"
+            error_message = (
+                f"Ошибка при отправке письма для {recipient.email}: {str(e)}"
+            )
             logger.error(error_message, exc_info=True)
             MailingAttempt.objects.create(
                 status=MailingAttempt.STATUS_NOT_SUCCESSFULLY,
@@ -364,20 +574,27 @@ def run_mailing(request, pk):
             failed_sends += 1
 
     mailing.status = Mailing.STATUS_COMPLETED
-    mailing.save(update_fields=['status'])
-    messages.success(request, f'Отправка писем для рассылки "{mailing.message.email_subject}" завершена. Успешно: {successful_sends}, Ошибок: {failed_sends}.')
-    logger.info(f"Рассылка ID: {mailing.pk} завершена после ручного запуска. Успешно: {successful_sends}, Ошибок: {failed_sends}.")
+    mailing.save(update_fields=["status"])
+    messages.success(
+        request,
+        f'Отправка писем для рассылки "{mailing.message.email_subject}" завершена. '
+        f'Успешно: {successful_sends}, Ошибок: {failed_sends}.',
+    )
+    logger.info(
+        f"Рассылка ID: {mailing.pk} завершена после ручного запуска. Успешно: {successful_sends}, "
+        f"Ошибок: {failed_sends}."
+    )
+
+    cache.delete("stats_manager_all")
+    if mailing.owner.is_authenticated:
+        cache.delete(f"stats_user_{mailing.owner.id}")
+    cache.delete("home_stats_manager_all")
+    if mailing.owner.is_authenticated:
+        cache.delete(f"home_stats_user_{mailing.owner.id}")
+    cache.delete(reverse("mailing:mailings"))
+    cache.delete(reverse("mailing:mailing_detail", kwargs={"pk": mailing.pk}))
 
     return redirect("mailing:mailings")
-
-
-class UserListManagerView(ManagerRequiredMixin, ListView):
-    model = User
-    template_name = 'mailing/user_list_manager.html'
-    context_object_name = 'users'
-
-    def get_queryset(self):
-        return User.objects.filter(is_superuser=False).exclude(pk=self.request.user.pk).order_by('email')
 
 
 @manager_required
@@ -385,18 +602,42 @@ def toggle_user_active_status(request, pk):
     user_to_toggle = get_object_or_404(User, pk=pk)
 
     if user_to_toggle.is_superuser:
-        messages.error(request, 'Невозможно заблокировать/разблокировать суперпользователя.')
-        return redirect('mailing:user_list_manager')
+        messages.error(
+            request, "Невозможно заблокировать/разблокировать суперпользователя."
+        )
+        return redirect("mailing:user_list_manager")
 
     if request.user == user_to_toggle:
-        messages.error(request, 'Невозможно заблокировать/разблокировать самого себя.')
-        return redirect('mailing:user_list_manager')
+        messages.error(request, "Невозможно заблокировать/разблокировать самого себя.")
+        return redirect("mailing:user_list_manager")
 
     user_to_toggle.is_active = not user_to_toggle.is_active
-    user_to_toggle.save(update_fields=['is_active'])
+    user_to_toggle.save(update_fields=["is_active"])
 
     status_text = "заблокирован" if not user_to_toggle.is_active else "разблокирован"
-    messages.success(request, f'Пользователь "{user_to_toggle.email}" успешно {status_text}.')
-    logger.info(f"Менеджер {request.user.username} {status_text} пользователя {user_to_toggle.email} (ID: {user_to_toggle.id}).")
+    messages.success(
+        request, f'Пользователь "{user_to_toggle.email}" успешно {status_text}.'
+    )
+    logger.info(
+        f"Менеджер {request.user.username} {status_text} пользователя {user_to_toggle.email} "
+        f"(ID: {user_to_toggle.id})."
+    )
 
-    return redirect('mailing:user_list_manager')
+    cache.delete(reverse("mailing:user_list_manager"))
+    cache.delete("home_stats_manager_all")
+
+    return redirect("mailing:user_list_manager")
+
+
+@method_decorator(cache_page(60), name="dispatch")
+class UserListManagerView(ManagerRequiredMixin, ListView):
+    model = User
+    template_name = "mailing/user_list_manager.html"
+    context_object_name = "users"
+
+    def get_queryset(self):
+        return (
+            User.objects.filter(is_superuser=False)
+            .exclude(pk=self.request.user.pk)
+            .order_by("email")
+        )
