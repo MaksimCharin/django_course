@@ -1,0 +1,158 @@
+INFO 2025-06-25 17:44:48,052 basehttp 55580 64992 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:44:48,060 basehttp 55580 64992 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:45:26,521 basehttp 55580 64992 "GET /register/ HTTP/1.1" 200 5742
+INFO 2025-06-25 17:46:28,747 basehttp 55580 64992 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-25 17:46:30,380 basehttp 55580 64992 "POST / HTTP/1.1" 302 0
+INFO 2025-06-25 17:46:30,444 basehttp 55580 64992 "GET /mailing/mailings/ HTTP/1.1" 200 6551
+INFO 2025-06-25 17:46:32,126 basehttp 55580 64992 "GET /mailing/attempts/ HTTP/1.1" 200 6156
+INFO 2025-06-25 17:46:34,959 basehttp 55580 64992 "GET /mailing/manager/users/ HTTP/1.1" 200 4490
+INFO 2025-06-25 17:46:53,278 basehttp 55580 64992 "GET /mailing/manager/users/ HTTP/1.1" 200 4490
+INFO 2025-06-25 17:46:54,926 basehttp 55580 64992 "GET /mailing/manager/users/ HTTP/1.1" 200 4490
+INFO 2025-06-25 17:49:48,385 basehttp 55580 64992 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:49:48,392 basehttp 55580 64992 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:49:49,259 basehttp 55580 64992 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-25 17:49:51,915 basehttp 55580 64992 "GET /register/ HTTP/1.1" 200 4648
+INFO 2025-06-25 17:51:18,162 basehttp 55580 68780 "POST /register/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:51:18,168 basehttp 55580 68780 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-25 17:51:38,867 basehttp 55580 68780 "GET /confirm_email/6302134227b193597ff005e76cf49c1eef8301ef46ef8d338a127170462bbe8c/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:51:38,875 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:51:42,270 basehttp 55580 68780 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-25 17:51:51,115 basehttp 55580 68780 "POST / HTTP/1.1" 302 0
+INFO 2025-06-25 17:51:51,173 basehttp 55580 68780 "GET /mailing/mailings/ HTTP/1.1" 200 4846
+INFO 2025-06-25 17:51:52,641 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:51:57,288 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:52:08,910 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:52:10,305 basehttp 55580 68780 "GET /mailing/recipients/ HTTP/1.1" 200 4110
+INFO 2025-06-25 17:52:11,240 basehttp 55580 68780 "GET /mailing/messages/ HTTP/1.1" 200 4097
+INFO 2025-06-25 17:52:12,784 basehttp 55580 68780 "GET /mailing/attempts/ HTTP/1.1" 200 5489
+INFO 2025-06-25 17:52:14,855 basehttp 55580 68780 "GET /profile/ HTTP/1.1" 200 5192
+INFO 2025-06-25 17:52:19,404 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:52:47,976 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:53:18,374 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:53:20,590 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:54:00,665 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:54:10,352 basehttp 55580 68780 "GET /profile/ HTTP/1.1" 200 5192
+INFO 2025-06-25 17:54:14,393 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:14,398 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:16,058 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:16,063 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:17,187 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:17,191 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:17,706 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:17,710 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:17,892 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:17,897 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:18,063 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:18,067 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:18,242 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:18,247 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 5371
+INFO 2025-06-25 17:54:18,404 basehttp 55580 68780 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:18,410 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:54:18,565 basehttp 55580 68780 "GET /register/ HTTP/1.1" 200 5417
+INFO 2025-06-25 17:54:20,218 basehttp 55580 68780 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-25 17:54:39,189 basehttp 55580 68780 "POST / HTTP/1.1" 302 0
+INFO 2025-06-25 17:54:39,249 basehttp 55580 68780 "GET /mailing/mailings/ HTTP/1.1" 200 4846
+INFO 2025-06-25 17:54:40,607 basehttp 55580 68780 "GET /profile/ HTTP/1.1" 200 5192
+INFO 2025-06-25 17:54:41,457 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:55:14,072 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:55:15,197 basehttp 55580 68780 "GET /mailing/ HTTP/1.1" 200 4405
+INFO 2025-06-25 17:55:19,113 basehttp 55580 68780 "GET / HTTP/1.1" 200 5270
+INFO 2025-06-25 17:57:12,035 autoreload 55580 70672 D:\python\django_course\mailing\views.py changed, reloading.
+INFO 2025-06-25 17:57:12,483 autoreload 58196 69952 Watching for file changes with StatReloader
+INFO 2025-06-25 17:57:47,434 basehttp 58196 68384 "POST / HTTP/1.1" 302 0
+INFO 2025-06-25 17:57:47,550 basehttp 58196 68384 "GET /mailing/mailings/ HTTP/1.1" 200 6551
+INFO 2025-06-25 17:57:48,469 basehttp 58196 68384 "GET /mailing/recipients/ HTTP/1.1" 200 7296
+INFO 2025-06-25 17:57:49,186 basehttp 58196 68384 "GET /mailing/ HTTP/1.1" 200 5568
+INFO 2025-06-25 17:57:52,084 basehttp 58196 68384 "GET /profile/ HTTP/1.1" 200 5352
+INFO 2025-06-25 17:57:53,811 basehttp 58196 68384 "GET /mailing/messages/ HTTP/1.1" 200 7287
+INFO 2025-06-25 17:57:54,731 basehttp 58196 68384 "GET /mailing/attempts/ HTTP/1.1" 200 6156
+INFO 2025-06-25 17:57:55,171 basehttp 58196 68384 "GET /mailing/manager/users/ HTTP/1.1" 200 5644
+INFO 2025-06-25 18:03:24,006 autoreload 66400 19040 Watching for file changes with StatReloader
+INFO 2025-06-25 18:03:25,197 basehttp 66400 70220 "GET / HTTP/1.1" 200 5467
+INFO 2025-06-25 18:03:28,447 basehttp 66400 70220 "POST / HTTP/1.1" 302 0
+INFO 2025-06-25 18:03:28,565 basehttp 66400 70220 "GET /mailing/mailings/ HTTP/1.1" 200 6551
+INFO 2025-06-25 18:03:29,775 basehttp 66400 70220 "GET /mailing/recipients/ HTTP/1.1" 200 7296
+INFO 2025-06-25 18:03:32,195 basehttp 66400 70220 "GET /mailing/messages/ HTTP/1.1" 200 7287
+INFO 2025-06-25 18:03:34,882 basehttp 66400 70220 "GET /mailing/manager/users/ HTTP/1.1" 200 5644
+INFO 2025-06-25 18:03:36,157 basehttp 66400 70220 "GET /mailing/ HTTP/1.1" 200 5568
+INFO 2025-06-25 18:03:37,316 basehttp 66400 70220 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-25 18:03:37,321 basehttp 66400 70220 "GET /mailing/ HTTP/1.1" 200 5568
+INFO 2025-06-25 22:22:06,116 autoreload 56696 28464 Watching for file changes with StatReloader
+INFO 2025-06-25 22:22:07,337 basehttp 56696 58332 "GET / HTTP/1.1" 200 4304
+INFO 2025-06-27 14:37:47,602 autoreload 23456 20932 Watching for file changes with StatReloader
+INFO 2025-06-27 14:37:49,058 basehttp 23456 2232 "GET / HTTP/1.1" 200 4304
+WARNING 2025-06-27 14:37:49,241 log 23456 2232 Not Found: /favicon.ico
+WARNING 2025-06-27 14:37:49,242 basehttp 23456 2232 "GET /favicon.ico HTTP/1.1" 404 5090
+INFO 2025-06-27 14:37:51,226 basehttp 23456 2232 "POST / HTTP/1.1" 302 0
+ERROR 2025-06-27 14:37:53,451 log 23456 2232 Internal Server Error: /mailing/mailings/
+Traceback (most recent call last):
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 385, in connect_check_health
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\retry.py", line 87, in call_with_retry
+    return do()
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 386, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 797, in _connect
+    raise err
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 781, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\python\django_course\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python\django_course\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\utils\decorators.py", line 185, in _view_wrapper
+    result = _pre_process_request(request, *args, **kwargs)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\utils\decorators.py", line 131, in _pre_process_request
+    result = middleware.process_request(request)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\middleware\cache.py", line 161, in process_request
+    cache_key = get_cache_key(request, self.key_prefix, "GET", cache=self.cache)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\utils\cache.py", line 392, in get_cache_key
+    headerlist = cache.get(cache_key)
+  File "D:\python\django_course\.venv\Lib\site-packages\django\core\cache\backends\redis.py", line 188, in get
+    return self._cache.get(key, default)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\python\django_course\.venv\Lib\site-packages\django\core\cache\backends\redis.py", line 100, in get
+    value = client.get(key)
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\commands\core.py", line 1829, in get
+    return self.execute_command("GET", name, keys=[name])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\client.py", line 623, in execute_command
+    return self._execute_command(*args, **options)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\client.py", line 629, in _execute_command
+    conn = self.connection or pool.get_connection()
+                              ~~~~~~~~~~~~~~~~~~~^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\utils.py", line 191, in wrapper
+    return func(*args, **kwargs)
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 1530, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 379, in connect
+    self.connect_check_health(check_health=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\python\django_course\.venv\Lib\site-packages\redis\connection.py", line 391, in connect_check_health
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение.
+ERROR 2025-06-27 14:37:53,458 basehttp 23456 2232 "GET /mailing/mailings/ HTTP/1.1" 500 157569
+INFO 2025-06-27 14:38:17,741 basehttp 23456 2232 "GET /mailing/mailings/ HTTP/1.1" 200 6551
+INFO 2025-06-27 14:38:21,641 basehttp 23456 2232 "GET /mailing/ HTTP/1.1" 200 5568
+INFO 2025-06-27 14:38:22,212 basehttp 23456 2232 "GET /mailing/recipients/ HTTP/1.1" 200 7296
+INFO 2025-06-27 14:38:22,859 basehttp 23456 2232 "GET /mailing/messages/ HTTP/1.1" 200 7287
+INFO 2025-06-27 14:38:24,152 basehttp 23456 2232 "GET /mailing/attempts/ HTTP/1.1" 200 6156
+INFO 2025-06-27 14:38:24,704 basehttp 23456 2232 "GET /mailing/manager/users/ HTTP/1.1" 200 5644
+INFO 2025-06-27 14:38:25,562 basehttp 23456 2232 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-27 14:38:25,568 basehttp 23456 2232 "GET /mailing/ HTTP/1.1" 200 5568

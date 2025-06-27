@@ -1,0 +1,41 @@
+{% extends 'mailing/base.html' %}
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Профиль пользователя: {{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+                </div>
+                <div class="card-body">
+                    {% if user_profile.avatar %}
+                    <div class="text-center mb-3">
+                        <img src="{{ user_profile.avatar.url }}" alt="Аватар профиля" class="img-fluid rounded-circle"
+                             style="max-width: 150px; height: 150px; object-fit: cover;">
+                    </div>
+                    {% else %}
+                    <div class="text-center mb-3">
+                        <p>Аватар не установлен.</p>
+                    </div>
+                    {% endif %}
+
+                    <p><strong>Email:</strong> {{ user_profile.email }}</p>
+                    <p><strong>Имя:</strong> {{ user_profile.first_name|default:"Не указано" }}</p>
+                    <p><strong>Фамилия:</strong> {{ user_profile.last_name|default:"Не указано" }}</p>
+                    <p><strong>Номер телефона:</strong> {{ user_profile.phone_number|default:"Не указан" }}</p>
+                    <p><strong>Страна:</strong> {{ user_profile.country|default:"Не указана" }}</p>
+                    <p><strong>Дата регистрации:</strong> {{ user_profile.date_joined|date:"d M Y H:i" }}</p>
+                    <p><strong>Последнее обновление профиля:</strong> {{ user_profile.updated_at|date:"d M Y H:i" }}</p>
+                    <p><strong>Активен:</strong> {% if user_profile.is_active %}Да{% else %}Нет{% endif %}</p>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'users:profile_update' %}" class="btn btn-primary">Редактировать профиль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
